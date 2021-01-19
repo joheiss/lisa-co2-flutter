@@ -11,11 +11,11 @@ class SensorService {
   String serviceUrl;
   Client client = Client();
 
-  SensorService(String serviceUrl);
+  SensorService(this.serviceUrl);
 
   Future<Sensor> fetchOne(String id) async {
     try {
-      final response = await client.get('$_rootUrl/sensors/$id');
+      final response = await client.get('$serviceUrl/sensors/$id');
       if (response.statusCode != 200) throw ('Sensor $id not found, statusCode: $response.statusCode');
       final parsed = json.decode(response.body);
       final sensor = Sensor.fromJSON(parsed);
@@ -28,7 +28,7 @@ class SensorService {
   }
 
   Future<List<Sensor>> fetchAll() async {
-    final response = await client.get('$_rootUrl/sensors');
+    final response = await client.get('$serviceUrl/sensors');
     final parsedList = json.decode(response.body);
     final sensors = parsedList.map((s) => Sensor.fromJSON(s));
     return sensors;
@@ -39,7 +39,7 @@ class SensorService {
       'Content-Type': 'application/json; charset=UTF-8',
     };
     final response = await client.post(
-      '$_rootUrl/sensors',
+      '$serviceUrl/sensors',
       headers: headers,
       body: jsonEncode(sensor.toMap()),
     );
@@ -51,7 +51,7 @@ class SensorService {
   }
 
   Future<String> deleteOne(String id) async {
-    final response = await client.delete('$_rootUrl/sensors/$id}');
+    final response = await client.delete('$serviceUrl/sensors/$id}');
     if (response.statusCode == 200) {
       return id;
     }
@@ -63,7 +63,7 @@ class SensorService {
       'Content-Type': 'application/json; charset=UTF-8',
     };
     final response = await client.put(
-      '$_rootUrl/sensors/${sensor.id}',
+      '$serviceUrl/sensors/${sensor.id}',
       headers: headers,
       body: jsonEncode(sensor.toMap()),
     );
