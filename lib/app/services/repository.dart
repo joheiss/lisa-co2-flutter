@@ -1,47 +1,45 @@
-import 'local_ids_service.dart';
-import '../services/sensor_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../services/firebase_service.dart';
+import '../../service_locator.dart';
 import '../models/sensor_model.dart';
 import '../models/diagram_control_model.dart';
 import 'diagram_service.dart';
 
 class Repository {
-  final String deviceId;
-  final String serviceUrl;
-  DiagramService _diagramService;
-  LocalIdsService _localIdsService;
-  SensorService _sensorService;
+  final DiagramService _diagramService = DiagramService();
+  FirebaseService _firebaseService = locator<FirebaseService>();
 
-  Repository(this.deviceId, this.serviceUrl) {
-    print('(TRACE) Repository serviceUrl: $serviceUrl');
-    _diagramService = DiagramService();
-    _localIdsService = LocalIdsService();
-    _sensorService = SensorService(serviceUrl);
+  String getCurrentUserId() {
+    return _firebaseService.getCurrentUserId();
   }
 
-  Future<int> addSensorId(id) async {
-    return _localIdsService.addSensorId(id);
+  Future<User> signIn(String email, String password) async {
+    return _firebaseService.signIn(email, password);
   }
 
-  Future<Sensor> addSensor(Sensor sensor) async {
-    return _sensorService.addOne(sensor);
+  Future<void> signOut() {
+    return _firebaseService.signOut();
   }
 
-  Future<Sensor> updateSensor(Sensor sensor) async {
-    return _sensorService.updateOne(sensor);
+  Stream<QuerySnapshot> querySensorIds() {
+    return _firebaseService.querySensorIds();
   }
 
-  Future<void> clearCache() async {}
+  Stream<DocumentSnapshot> querySensor(id) {
+    return _firebaseService.querySensor(id);
+  }
+
+  Future<void> addSensorId(id) async {
+    return _firebaseService.createSensorId(id);
+  }
 
   Future<void> deleteSensorId(String id) async {
-    return _localIdsService.deleteSensorId(id);
+    return _firebaseService.deleteSensorId(id);
   }
 
-  Future<List<String>> fetchSensorIds() async {
-    return _localIdsService.fetchSensorIds();
-  }
-
-  Future<Sensor> fetchSensor(String id) async {
-    return _sensorService.fetchOne(id);
+  Future<void> updateSensor(Sensor sensor) async {
+    return _firebaseService.updateSensor(sensor);
   }
 
   DiagramOptions getInitialDiagramOptions(String id, [Sensor sensor]) {

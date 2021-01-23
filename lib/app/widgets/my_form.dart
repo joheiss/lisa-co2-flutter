@@ -1,20 +1,31 @@
-import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import '../services/firebase_service.dart';
-import '../../service_locator.dart';
 import '../blocs/bloc.dart';
 import '../models/sensor_model.dart';
 
-class MyForm extends StatelessWidget {
-  final _firebaseService = locator<FirebaseService>();
+class MyForm extends StatefulWidget {
   final String id;
+
+  MyForm({this.id});
+
+  @override
+  _MyFormState createState() => _MyFormState(id);
+}
+
+class _MyFormState extends State<MyForm> {
+  final String id;
+
   Sensor sensor;
   TextEditingController _nameController;
   TextEditingController _descController;
   TextEditingController _commentController;
-  MyForm({this.id});
+
+  _MyFormState(this.id);
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +35,7 @@ class MyForm extends StatelessWidget {
         title: Text('Informationen zu Sensor $id'),
       ),
       body: StreamBuilder<DocumentSnapshot>(
-        stream: _firebaseService.querySensor(id),
+        stream: bloc.querySensor(id),
         builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
           if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
           if (!snapshot.data.exists) return Center(child: CircularProgressIndicator());
@@ -88,7 +99,7 @@ class MyForm extends StatelessWidget {
         sensor.name = _nameController.text;
         sensor.description = _descController.text;
         sensor.comment = _commentController.text;
-        _firebaseService.updateSensor(sensor);
+        bloc.updateSensor(sensor);
         Navigator.of(context).pop();
       },
       child: Text('Speichern'),
@@ -97,6 +108,7 @@ class MyForm extends StatelessWidget {
   }
 
   void dispose() {
+    super.dispose();
     _nameController.dispose();
     _descController.dispose();
     _commentController.dispose();

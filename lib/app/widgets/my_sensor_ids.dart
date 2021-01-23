@@ -1,13 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:try_grid/app/services/firebase_service.dart';
-import '../../service_locator.dart';
 import '../blocs/bloc.dart';
 import 'my_nodata.dart';
 import 'my_refresher.dart';
 
 class MySensorIds extends StatelessWidget {
-  final _firebaseService = locator<FirebaseService>();
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +18,7 @@ class MySensorIds extends StatelessWidget {
 
   Widget _buildList(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: _firebaseService.querySensorIds(),
+      stream: bloc.querySensorIds(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (!snapshot.hasData) return MyNoData();
         return Refreshable(
@@ -42,17 +39,8 @@ class MySensorIds extends StatelessWidget {
       title: Text('$sensorId'),
       trailing: IconButton(
           icon: Icon(Icons.delete),
-          onPressed: () => _firebaseService.deleteSensorId(sensorId),
+          onPressed: () => bloc.deleteSensorId(sensorId),
       ),
     );
-  }
-
-  Stream<QuerySnapshot> _querySensorIds() {
-    print('(TRACE) Query with deviceId: $bloc.deviceId');
-    return FirebaseFirestore.instance
-        .collection('sensors_subs')
-        .where('deviceId', isEqualTo: bloc.deviceId)
-        .orderBy('createdAt', descending: true)
-        .snapshots();
   }
 }

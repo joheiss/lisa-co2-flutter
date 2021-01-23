@@ -17,10 +17,10 @@ class MyInfo extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Text('Hier kommen Informationen über die App hin ... ${bloc.deviceId}'),
+          Text('Hier kommen Informationen über die App hin ... ${Bloc.deviceId}'),
           Text('Angemeldet als: ${bloc.user.email}', style: TextStyle(fontSize: 20.0)),
-          Text('Device ID: ${bloc.deviceId}', style: TextStyle(fontSize: 20.0)),
-          Text('App Version: ${bloc.version}', style: TextStyle(fontSize: 20.0)),
+          Text('Device ID: ${Bloc.deviceId}', style: TextStyle(fontSize: 20.0)),
+          Text('App Version: ${Bloc.version}', style: TextStyle(fontSize: 20.0)),
         ],
       ),
     );

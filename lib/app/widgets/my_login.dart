@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/firebase_service.dart';
-import '../../service_locator.dart';
+import 'package:try_grid/app/blocs/bloc.dart';
 
 class MyLogin extends StatefulWidget {
   @override
@@ -8,7 +7,6 @@ class MyLogin extends StatefulWidget {
 }
 
 class _MyLoginState extends State<MyLogin> {
-  final _firebaseService = locator<FirebaseService>();
 
   String message = '';
   TextEditingController _emailController = TextEditingController();
@@ -63,7 +61,7 @@ class _MyLoginState extends State<MyLogin> {
     return RaisedButton(
       onPressed: () async {
         print('(TRACE) email: ${_emailController.text}, password: ${_passwordController.text}');
-        final user = await _firebaseService.signIn(_emailController.text, _passwordController.text);
+        final user = await bloc.signIn(_emailController.text, _passwordController.text);
         if (user == null) {
           print('(TRACE) Sign in FAILED');
           setState(() {

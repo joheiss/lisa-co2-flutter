@@ -1,11 +1,8 @@
 import '../models/sensor_model.dart';
 import '../models/diagram_control_model.dart';
 
-import 'mock_service.dart';
-
 class DiagramService {
   DiagramOptions _options;
-  final Mocker mocker = Mocker();
 
   DiagramService();
 

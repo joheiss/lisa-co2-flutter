@@ -7,61 +7,58 @@ import '../blocs/bloc.dart';
 import '../models/sensor_model.dart';
 
 class FirebaseService {
-
   final auth = FirebaseAuth.instance;
   final store = FirebaseFirestore.instance;
   final fcm = FirebaseMessaging();
 
   Stream<QuerySnapshot> querySensorIds() {
-    print('(TRACE) Query with userId: ${bloc.user.uid}');
+    final uid = getCurrentUserId();
+    print('(TRACE) Query with userId: $uid');
     return store
         .collection('sensors_subs_user')
-        .where('userId', isEqualTo: bloc.user.uid)
+        .where('userId', isEqualTo: uid)
         .orderBy('createdAt', descending: true)
         .snapshots();
   }
 
   Stream<DocumentSnapshot> querySensor(id) {
     print('(TRACE) Query sensor with id: $id');
-    return store
-        .collection('sensors')
-        .doc('$id')
-        .snapshots();
+    return store.collection('sensors').doc('$id').snapshots();
   }
 
-  Future<DocumentReference> createSensorId(String sensorId) async {
-    return store.collection('sensors_subs_user')
-      .where('userId', isEqualTo: bloc.user.uid)
-      .where('sensorId', isEqualTo: sensorId)
-      .limit(1)
-      .get()
-      .then((value) async {
-          if (value.size == 0) {
-            final createdAt = Timestamp.fromMillisecondsSinceEpoch(DateTime.now().millisecondsSinceEpoch);
-            final ref = await store.collection('sensors_subs_user').add({
-              'userId': bloc.user.uid,
-              'sensorId': sensorId,
-              'createdAt': createdAt
-            });
-            return ref;
-          }
-          return null;
+  Future<void> createSensorId(String sensorId) async {
+    return store
+        .collection('sensors_subs_user')
+        .where('userId', isEqualTo: bloc.user.uid)
+        .where('sensorId', isEqualTo: sensorId)
+        .limit(1)
+        .get()
+        .then((value) async {
+      if (value.size == 0) {
+        final createdAt = Timestamp.fromMillisecondsSinceEpoch(DateTime.now().millisecondsSinceEpoch);
+        final ref = await store
+            .collection('sensors_subs_user')
+            .add({'userId': bloc.user.uid, 'sensorId': sensorId, 'createdAt': createdAt});
+        return ref;
+      }
+      return null;
     });
   }
 
   Future<void> deleteSensorId(String sensorId) async {
-    return store.collection('sensors_subs_user')
-      .where('userId', isEqualTo: bloc.user.uid)
-      .where('sensorId', isEqualTo: sensorId)
-      .limit(1)
-      .get()
-      .then((value) async {
-        final id = value.docs.first.id;
-        final ref = value.docs.first.reference;
-        print('(TRACE) Delete sensorId $id');
-        await store.runTransaction((tx) async {
-          tx.delete(ref);
-        });
+    return store
+        .collection('sensors_subs_user')
+        .where('userId', isEqualTo: bloc.user.uid)
+        .where('sensorId', isEqualTo: sensorId)
+        .limit(1)
+        .get()
+        .then((value) async {
+      final id = value.docs.first.id;
+      final ref = value.docs.first.reference;
+      print('(TRACE) Delete sensorId $id');
+      await store.runTransaction((tx) async {
+        tx.delete(ref);
+      });
     });
   }
 
@@ -80,15 +77,6 @@ class FirebaseService {
     return auth.authStateChanges();
   }
 
-  User getAuthenticatedUser() {
-    auth
-        .authStateChanges()
-        .listen((User user) {
-          if (user == null) return null;
-          return user;
-        });
-  }
-
   String getCurrentUserId() {
     if (auth.currentUser == null) return null;
     return auth.currentUser.uid;
@@ -98,7 +86,7 @@ class FirebaseService {
     try {
       final result = await auth.signInWithEmailAndPassword(email: email, password: password);
       return result.user;
-    } catch (err){
+    } catch (err) {
       print('(TRACE) Not authenticated: ${err.code}');
       return null;
     }

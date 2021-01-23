@@ -1,26 +1,33 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:swipe_gesture_recognizer/swipe_gesture_recognizer.dart';
-import '../services/firebase_service.dart';
-import '../../service_locator.dart';
 import '../blocs/bloc.dart';
 import '../models/sensor_model.dart';
 import '../models/diagram_control_model.dart';
 import 'my_chart.dart';
 import 'my_theme.dart';
 
-class MyDetail extends StatelessWidget {
-  final _firebaseService = locator<FirebaseService>();
+class MyDetail extends StatefulWidget {
   final String id;
-  Sensor sensor;
-  DiagramOptions options;
 
   MyDetail({this.id});
 
   @override
+  _MyDetailState createState() => _MyDetailState(id);
+}
+
+class _MyDetailState extends State<MyDetail> {
+  final String id;
+
+  Sensor sensor;
+  DiagramOptions options;
+
+  _MyDetailState(this.id);
+
+  @override
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot>(
-      stream: _firebaseService.querySensor(id),
+      stream: bloc.querySensor(id),
       builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
         sensor = Sensor.fromFS(id, snapshot.data.data());
@@ -33,6 +40,7 @@ class MyDetail extends StatelessWidget {
         );
       },
     );
+
   }
 
   Widget _buildTitle(Sensor sensor) {

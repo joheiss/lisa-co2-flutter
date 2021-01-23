@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../blocs/bloc.dart';
 
 class Refreshable extends StatelessWidget {
   final Widget child;
@@ -11,8 +10,8 @@ class Refreshable extends StatelessWidget {
     return RefreshIndicator(
       child: child,
       onRefresh: () async {
-        await bloc.clearCache();
-        await bloc.fetchSensorIds();
+        // ich glaube, den brauche ich nicht mehr. 
+        // await bloc.fetchSensorIds();
       },
     );
   }

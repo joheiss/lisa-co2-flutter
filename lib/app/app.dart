@@ -1,27 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:try_grid/app/widgets/my_login.dart';
+import 'widgets/my_login.dart';
 import 'widgets/my_form.dart';
-import 'services/firebase_service.dart';
 import 'widgets/my_sensor_ids.dart';
-import '../service_locator.dart';
-import 'blocs/bloc.dart';
 import 'widgets/my_barcode.dart';
 import 'widgets/my_detail.dart';
 import 'widgets/my_grid.dart';
 import 'widgets/my_info.dart';
 import 'widgets/my_theme.dart';
-import 'widgets/my_settings.dart';
+import 'blocs/bloc.dart';
 
 class App extends StatelessWidget {
-  final String _deviceId;
-  final _firebaseService = locator<FirebaseService>();
-
-  App(this._deviceId) {
-    bloc.deviceId = _deviceId;
-  }
 
   @override
-  Widget build(BuildContext context)  {
+  Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Meine Räume',
       theme: MyTheme.darkTheme(),
@@ -30,7 +21,7 @@ class App extends StatelessWidget {
   }
 
   Route<Widget> _generateRoute(RouteSettings settings) {
-    final uid = _firebaseService.getCurrentUserId();
+    final uid = bloc.getCurrentUserId();
     print('(TRACE) Logged in user: $uid');
     print('(TRACE) Navigation target: ${settings.name}');
     if (uid == null || settings.name == '/signin')
@@ -49,7 +40,7 @@ class App extends StatelessWidget {
       return MaterialPageRoute(
         builder: (BuildContext context) {
           final id = settings.name.replaceFirst('/detail/', '');
-          bloc.getInitialOptions(id);
+          // bloc.getInitialOptions(id);
           return MyDetail(id: id);
         },
       );
@@ -63,20 +54,13 @@ class App extends StatelessWidget {
       return MaterialPageRoute(
         builder: (BuildContext context) {
           final id = settings.name.replaceFirst('/barcode/', '');
-          _firebaseService.createSensorId(id);
+          bloc.addSensorId(id);
           return MyForm(id: id);
-        },
-      );
-    if (settings.name == '/settings')
-      return MaterialPageRoute(
-        builder: (BuildContext context) {
-          return MySettings();
         },
       );
     if (settings.name == '/reset')
       return MaterialPageRoute(
         builder: (BuildContext context) {
-          // bloc.fetchSensorIds();
           return MySensorIds();
         },
       );

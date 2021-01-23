@@ -1,14 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import '../services/firebase_service.dart';
-import '../../service_locator.dart';
+import '../blocs/bloc.dart';
 import 'my_nodata.dart';
 import 'my_refresher.dart';
 import 'my_drawer.dart';
 import 'my_grid_item.dart';
 
 class MyGrid extends StatelessWidget {
-  final _firebaseService = locator<FirebaseService>();
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +26,7 @@ class MyGrid extends StatelessWidget {
 
   Widget _buildGrid(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: _firebaseService.querySensorIds(),
+      stream: bloc.querySensorIds(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (!snapshot.hasData) return MyNoData();
         if (snapshot.data.size == 0) return MyNoData();
