@@ -5,11 +5,13 @@ import '../models/diagram_control_model.dart';
 import 'diagram_service.dart';
 
 class Repository {
+  final String deviceId;
+  final String serviceUrl;
   DiagramService _diagramService;
   LocalIdsService _localIdsService;
   SensorService _sensorService;
 
-  Repository(String serviceUrl) {
+  Repository(this.deviceId, this.serviceUrl) {
     print('(TRACE) Repository serviceUrl: $serviceUrl');
     _diagramService = DiagramService();
     _localIdsService = LocalIdsService();

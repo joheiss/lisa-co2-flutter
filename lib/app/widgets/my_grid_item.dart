@@ -1,34 +1,32 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:try_grid/app/widgets/my_scatter_chart.dart';
+import '../services/firebase_service.dart';
+import '../../service_locator.dart';
+import 'my_scatter_chart.dart';
 import '../models/sensor_model.dart';
-import '../blocs/bloc.dart';
 import 'my_theme.dart';
 
 class MyGridItem extends StatelessWidget {
+  final _firebaseService = locator<FirebaseService>();
   final String id;
 
   MyGridItem({this.id});
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: bloc.sensors,
-      builder: (BuildContext context, AsyncSnapshot<Map<String, Future<Sensor>>> snapshot) {
+    return StreamBuilder<DocumentSnapshot>(
+      stream: _firebaseService.querySensor(id),
+      builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         if (!snapshot.hasData) return Text('... Loading $id ...');
-        return FutureBuilder(
-          future: snapshot.data[id],
-          builder: (BuildContext context, AsyncSnapshot<Sensor> sensorSnapshot) {
-            if (!sensorSnapshot.hasData) return Text('... Sensor $id is loading ...');
-            return _buildContainer(context, sensorSnapshot.data);
-          },
-        );
+        if (!snapshot.data.exists) return Text('Gelöscht');
+        return _buildContainer(context, Sensor.fromFS(id, snapshot.data.data()));
       },
     );
   }
 
   Widget _buildContainer(BuildContext context, Sensor sensor) {
     return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, '/detail/${sensor.id}'),
+      onTap: () => Navigator.pushNamed(context, '/detail/$id'),
       child: Stack(
         alignment: Alignment.center,
         children: [

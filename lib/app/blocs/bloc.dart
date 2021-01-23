@@ -1,15 +1,22 @@
 import 'dart:developer';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rxdart/rxdart.dart';
+import '../services/push_notification_service.dart';
 import '../../service_locator.dart';
+import '../services/device_service.dart';
 import '../services/localstorage_service.dart';
 import '../services/repository.dart';
 import '../models/sensor_model.dart';
 import '../models/diagram_control_model.dart';
 
 class Bloc {
+  final _version = '1.0.0';
+  final _deviceService = locator<DeviceService>();
   final _storageService = locator<LocalStorageService>();
   Repository _repository;
+  String _deviceId;
+  User _user;
 
   final _sensorIds = PublishSubject<List<String>>();
   final _sensorId = PublishSubject<String>();
@@ -20,8 +27,24 @@ class Bloc {
 
   Bloc() {
     print('(TRACE) service-url: $_storageService.serviceUrl');
-    _repository = Repository(_storageService.serviceUrl);
+    final pushNotificationService = PushNotificationService();
+    pushNotificationService.init();
+    FirebaseAuth.instance.authStateChanges().listen((User user) => _user = user);
+    _getRepository();
     _sensorId.stream.transform(_sensorsTransformer()).pipe(_sensors);
+  }
+
+  Future<void> _getRepository() async {
+    if (_deviceId == null) _deviceId = await _deviceService.getDeviceId();
+    print('(TRACE) Devide Id: $_deviceId');
+    _repository = Repository(_deviceId, _storageService.serviceUrl);
+  }
+
+  String get version => _version;
+  User get user => _user;
+  String get deviceId => _deviceId;
+  set deviceId(String deviceId) {
+    _deviceId = deviceId;
   }
 
   Stream<List<String>> get sensorIds => _sensorIds.stream;

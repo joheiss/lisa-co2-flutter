@@ -40,6 +40,11 @@ dependencies:
   swipe_gesture_recognizer: ^0.0.2
   get_it: ^5.0.4
   shared_preferences: ^0.5.12+4
+  device_info:
+  firebase_core:
+  firebase_auth:
+  cloud_firestore:
+  firebase_messaging:
 
 
 dev_dependencies:

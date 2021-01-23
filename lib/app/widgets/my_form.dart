@@ -1,10 +1,14 @@
 import 'dart:developer';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import '../services/firebase_service.dart';
+import '../../service_locator.dart';
 import '../blocs/bloc.dart';
 import '../models/sensor_model.dart';
 
 class MyForm extends StatelessWidget {
+  final _firebaseService = locator<FirebaseService>();
   final String id;
   Sensor sensor;
   TextEditingController _nameController;
@@ -19,11 +23,12 @@ class MyForm extends StatelessWidget {
       appBar: AppBar(
         title: Text('Informationen zu Sensor $id'),
       ),
-      body: StreamBuilder(
-        stream: bloc.newSensor,
-        builder: (BuildContext context, AsyncSnapshot<Sensor> snapshot) {
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: _firebaseService.querySensor(id),
+        builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
           if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
-          sensor = snapshot.data;
+          if (!snapshot.data.exists) return Center(child: CircularProgressIndicator());
+          sensor = Sensor.fromFS(id, snapshot.data.data());
           _nameController = TextEditingController(text: sensor.name);
           _descController = TextEditingController(text: sensor.description);
           _commentController = TextEditingController(text: sensor.comment);
@@ -52,12 +57,6 @@ class MyForm extends StatelessWidget {
         hintText: 'Bitte geben Sie einen Namen ein.',
       ),
       controller: controller,
-      // onEditingComplete: () {
-      //   sensor.name = controller.text;
-      //   print('update sensor name in form');
-      //   print(sensor.name);
-      //   bloc.changeSensor(sensor);
-      // },
     );
   }
 
@@ -89,8 +88,7 @@ class MyForm extends StatelessWidget {
         sensor.name = _nameController.text;
         sensor.description = _descController.text;
         sensor.comment = _commentController.text;
-        inspect(sensor);
-        bloc.updateSensor(sensor);
+        _firebaseService.updateSensor(sensor);
         Navigator.of(context).pop();
       },
       child: Text('Speichern'),

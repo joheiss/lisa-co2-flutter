@@ -12,7 +12,7 @@ class SensorMeasurement {
   SensorMeasurement(this.time, this.co2, this.temperature, this.humidity);
 
   SensorMeasurement.fromJSON(Map<String, dynamic> json)
-      : time = json['time'],
+      : time = json['time'].toDate().millisecondsSinceEpoch,
         co2 = json['co2'] ?? 0,
         temperature = json['temperature'] ?? 0,
         humidity = json['humidity'] ?? 0;
@@ -39,6 +39,18 @@ class Sensor {
     comment = json['comment'] ?? '';
     try {
         measurements = json['measurements'].map<SensorMeasurement>((m) => SensorMeasurement.fromJSON(m)).toList() ?? <SensorMeasurement>[];
+    } on NoSuchMethodError {
+      measurements = <SensorMeasurement>[];
+    }
+  }
+
+  Sensor.fromFS(String id, Map<String, dynamic> json) {
+    id = id;
+    name = json['name'] ?? '';
+    description = json['description'] ?? '';
+    comment = json['comment'] ?? '';
+    try {
+      measurements = json['measurements'].map<SensorMeasurement>((m) => SensorMeasurement.fromJSON(m)).toList() ?? <SensorMeasurement>[];
     } on NoSuchMethodError {
       measurements = <SensorMeasurement>[];
     }

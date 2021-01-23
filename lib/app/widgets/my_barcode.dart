@@ -13,12 +13,7 @@ class MyBarcode extends StatelessWidget {
         children: [
           Center(
             child: RaisedButton(
-              onPressed: () async {
-                String id = await FlutterBarcodeScanner.scanBarcode('#ff6666', 'Abbrechen', true, ScanMode.BARCODE);
-                if (id == null) return;
-                if (id == '-1') id = 'oho-oho-${DateTime.now().millisecond}';
-                Navigator.popAndPushNamed(context, '/barcode/$id');
-              },
+              onPressed: () => _scanBarcode(context),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
@@ -34,5 +29,12 @@ class MyBarcode extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _scanBarcode(BuildContext context) async {
+    String id = await FlutterBarcodeScanner.scanBarcode('#ff6666', 'Abbrechen', true, ScanMode.BARCODE);
+    print('(TRACE) Scanned id: $id');
+    if (id == null || id == '-1') return;
+    Navigator.popAndPushNamed(context, '/barcode/$id');
   }
 }
