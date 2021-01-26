@@ -4,7 +4,7 @@ import '../blocs/bloc.dart';
 class MyDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Drawer(
+     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero, 
         children: <Widget>[
@@ -24,6 +24,13 @@ class MyDrawer extends StatelessWidget {
             trailing: Icon(Icons.delete_sweep, color: Theme.of(context).primaryColor),
             onTap: () => Navigator.pushNamed(context, '/reset'),
           ),
+          StreamBuilder<bool>(
+              stream: bloc.fcmAllowed,
+              builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                // if (!snapshot.hasData) return null;
+                return _buildNotificationListTile(context, snapshot.data ?? false);
+              },
+          ),
           Divider(),
           ListTile(
             title: Text('Abmelden', style: TextStyle(color: Theme.of(context).primaryColor)),
@@ -36,5 +43,28 @@ class MyDrawer extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  ListTile _buildNotificationListTile(BuildContext context, bool isNotificationAllowed) {
+    print('(TRACE) Notifications allowed: $isNotificationAllowed');
+    if (!isNotificationAllowed) {
+      return ListTile(
+        title: Text('Mitteilungen abonnieren', style: TextStyle(color: Theme.of(context).primaryColor)),
+        trailing: Icon(Icons.speaker_notes, color: Theme.of(context).primaryColor),
+        onTap: () async {
+          await bloc.allowNotifications();
+          Navigator.pop(context);
+        },
+      );
+    } else {
+        return ListTile(
+          title: Text('Mitteilungen abbestellen', style: TextStyle(color: Theme.of(context).primaryColor)),
+          trailing: Icon(Icons.speaker_notes_off, color: Theme.of(context).primaryColor),
+          onTap: () async {
+            await bloc.blockNotifications();
+            Navigator.pop(context);
+          },
+        );
+    }
   }
 }

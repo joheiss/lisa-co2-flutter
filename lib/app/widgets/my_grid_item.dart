@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../blocs/bloc.dart';
 import 'my_scatter_chart.dart';
@@ -12,12 +11,13 @@ class MyGridItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<DocumentSnapshot>(
-      stream: bloc.querySensor(id),
-      builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+    return StreamBuilder<Sensor>(
+      stream: bloc.querySensorWithLastMeasurement(id),
+      builder: (BuildContext context, AsyncSnapshot<Sensor> snapshot) {
         if (!snapshot.hasData) return Text('... Loading $id ...');
-        if (!snapshot.data.exists) return Text('Gelöscht');
-        return _buildContainer(context, Sensor.fromFS(id, snapshot.data.data()));
+        if (snapshot.data == null) return Text('Gelöscht');
+        final sensor = Sensor(snapshot.data.id, snapshot.data.name, snapshot.data.description, snapshot.data.comment, snapshot.data.measurements);
+        return _buildContainer(context, sensor);
       },
     );
   }

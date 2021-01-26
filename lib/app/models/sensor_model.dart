@@ -56,6 +56,18 @@ class Sensor {
     }
   }
 
+  Sensor.fromFSWithMeasurements(String id, Map<String, dynamic> json, List<SensorMeasurement> inputMeasurements) {
+    id = id;
+    name = json['name'] ?? '';
+    description = json['description'] ?? '';
+    comment = json['comment'] ?? '';
+    try {
+      measurements =  inputMeasurements.length > 0 ? inputMeasurements : <SensorMeasurement>[];
+    } on NoSuchMethodError {
+      measurements = <SensorMeasurement>[];
+    }
+  }
+
   Map<String, dynamic> toMap() {
     print(this.measurements);
     return {

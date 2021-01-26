@@ -22,12 +22,32 @@ class Repository {
     return _firebaseService.signOut();
   }
 
+  Future<bool> isNotificationAllowed(String deviceId) {
+    return _firebaseService.isFcmAllowed(deviceId);
+  }
+
+  Future<void> allowNotifications(String deviceId) {
+    return _firebaseService.saveFcmToken(deviceId);
+  }
+
+  Future<void> blockNotifications(String deviceId) {
+    return _firebaseService.deleteFcmToken(deviceId);
+  }
+
   Stream<QuerySnapshot> querySensorIds() {
     return _firebaseService.querySensorIds();
   }
 
   Stream<DocumentSnapshot> querySensor(id) {
     return _firebaseService.querySensor(id);
+  }
+
+  Stream<Sensor> querySensorWithAllMeasurements(id) {
+    return _firebaseService.querySensorWithAllMeasurements(id);
+  }
+
+  Stream<Sensor> querySensorWithLastMeasurement(id) {
+    return _firebaseService.querySensorWithLastMeasurement(id);
   }
 
   Future<void> addSensorId(id) async {

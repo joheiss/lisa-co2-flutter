@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:swipe_gesture_recognizer/swipe_gesture_recognizer.dart';
 import '../blocs/bloc.dart';
@@ -26,11 +25,11 @@ class _MyDetailState extends State<MyDetail> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<DocumentSnapshot>(
-      stream: bloc.querySensor(id),
-      builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+    return StreamBuilder<Sensor>(
+      stream: bloc.querySensorWithAllMeasurements(id),
+      builder: (BuildContext context, AsyncSnapshot<Sensor> snapshot) {
         if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
-        sensor = Sensor.fromFS(id, snapshot.data.data());
+        sensor = Sensor(snapshot.data.id, snapshot.data.name, snapshot.data.description, snapshot.data.comment, snapshot.data.measurements);
         bloc.getInitialOptions(id, sensor);
         return Scaffold(
           appBar: AppBar(

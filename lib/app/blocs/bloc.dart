@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:try_grid/app/services/firebase_service.dart';
 import '../services/push_notification_service.dart';
 import '../../service_locator.dart';
 import '../services/device_service.dart';
@@ -9,7 +10,7 @@ import '../models/sensor_model.dart';
 import '../models/diagram_control_model.dart';
 
 class Bloc {
-  static final version = '1.0.0';
+  static final version = '1.0.1';
   static String deviceId;
   static Future<void> getDeviceId() async {
     final _deviceService = locator<DeviceService>();
@@ -18,9 +19,7 @@ class Bloc {
 
   final Repository _repository = Repository();
 
-  // final _sensorIds = PublishSubject<List<String>>();
-  // final _sensorId = PublishSubject<String>();
-  // final _sensors = BehaviorSubject<Map<String, Future<Sensor>>>();
+  final _fcmAllowed = BehaviorSubject<bool>();
   final _newSensor = BehaviorSubject<Sensor>();
   final _options = BehaviorSubject<DiagramOptions>();
 
@@ -29,10 +28,15 @@ class Bloc {
   Bloc() {
     final pushNotificationService = PushNotificationService();
     pushNotificationService.init();
-    FirebaseAuth.instance.authStateChanges().listen((User user) => _user = user);
+    FirebaseAuth.instance.authStateChanges().listen((User user) async {
+      _user = user;
+      await isNotificationAllowed();
+    });
   }
 
   User get user => _user;
+
+  Stream<bool> get fcmAllowed => _fcmAllowed.stream;
 
   Stream<Sensor> get newSensor => _newSensor.stream;
   Function(Sensor) get addSensor => _newSensor.add;
@@ -52,6 +56,22 @@ class Bloc {
     return _repository.signOut();
   }
 
+  Future<bool> isNotificationAllowed() async {
+    final allowed = await _repository.isNotificationAllowed(deviceId);
+    _fcmAllowed.add(allowed);
+    return allowed;
+  }
+
+  Future<void> allowNotifications() async {
+    await _repository.allowNotifications(deviceId);
+    _fcmAllowed.add(true);
+  }
+
+  Future<void> blockNotifications() async {
+    await _repository.blockNotifications(deviceId);
+    _fcmAllowed.add(false);
+  }
+
   Future<void> getInitialOptions(String id, [Sensor sensor]) async {
     final options = _repository.getInitialDiagramOptions(id, sensor);
     _options.add(options);
@@ -63,6 +83,14 @@ class Bloc {
 
   Stream<DocumentSnapshot> querySensor(id) {
     return _repository.querySensor(id);
+  }
+
+  Stream<Sensor> querySensorWithAllMeasurements(id) {
+    return _repository.querySensorWithAllMeasurements(id);
+  }
+
+  Stream<Sensor> querySensorWithLastMeasurement(id) {
+    return _repository.querySensorWithLastMeasurement(id);
   }
 
   Future<void> addSensorId(String id) async {
@@ -93,9 +121,7 @@ class Bloc {
   }
 
   void dispose() {
-    // _sensorIds.close();
-    // _sensorId.close();
-    // _sensors.close();
+    _fcmAllowed.close();
     _newSensor.close();
     _options.close();
   }

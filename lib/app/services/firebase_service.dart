@@ -26,7 +26,34 @@ class FirebaseService {
     return store.collection('sensors').doc('$id').snapshots();
   }
 
+  Stream<Sensor> querySensorWithAllMeasurements(id) {
+    print('(TRACE) Query sensor with id: $id');
+    return store.collection('sensors').doc('$id').get().then((doc) {
+      return doc.reference.collection('measurements').orderBy('time', descending: true).get().then((meas) {
+        final measurements = <SensorMeasurement>[];
+        meas.docs.forEach((m) {
+          measurements.add(SensorMeasurement.fromJSON(m.data()));
+        });
+        return Sensor.fromFSWithMeasurements(doc.id, doc.data(), measurements);
+      });
+    }).asStream();
+  }
+
+  Stream<Sensor> querySensorWithLastMeasurement(id) {
+    print('(TRACE) Query sensor with id: $id');
+    return store.collection('sensors').doc('$id').get().then((doc) {
+      return doc.reference.collection('measurements').orderBy('time', descending: true).limit(1).get().then((meas) {
+        final measurements = <SensorMeasurement>[];
+        meas.docs.forEach((m) {
+          measurements.add(SensorMeasurement.fromJSON(m.data()));
+        });
+        return Sensor.fromFSWithMeasurements(doc.id, doc.data(), measurements);
+      });
+    }).asStream();
+  }
+
   Future<void> createSensorId(String sensorId) async {
+    final createdAt = Timestamp.fromMillisecondsSinceEpoch(DateTime.now().millisecondsSinceEpoch);
     return store
         .collection('sensors_subs_user')
         .where('userId', isEqualTo: bloc.user.uid)
@@ -35,13 +62,17 @@ class FirebaseService {
         .get()
         .then((value) async {
       if (value.size == 0) {
-        final createdAt = Timestamp.fromMillisecondsSinceEpoch(DateTime.now().millisecondsSinceEpoch);
         final ref = await store
             .collection('sensors_subs_user')
             .add({'userId': bloc.user.uid, 'sensorId': sensorId, 'createdAt': createdAt});
         return ref;
+      } else {
+        // update createdAt if sensor is scanned again to get it in top position.
+        final ref = value.docs.first.reference;
+        final batch = store.batch();
+        batch.set(ref, {'userId': bloc.user.uid, 'sensorId': sensorId, 'createdAt': createdAt} );
+       return batch.commit();
       }
-      return null;
     });
   }
 
@@ -94,6 +125,26 @@ class FirebaseService {
 
   Future<void> signOut() {
     return auth.signOut();
+  }
+
+  Future<bool> isFcmAllowed(String deviceId) async {
+    final uid = auth.currentUser.uid;
+    final ref = store.collection('users').doc(uid).collection('devices').doc(deviceId);
+    if (ref == null) return false;
+    return ref.get().then((doc) => doc.data()['fcmToken'] != '' && doc.data()['fcmToken'] != null);
+  }
+
+  Future<String> getFcmToken(String deviceId) async {
+    return fcm.getToken();
+  }
+
+  Future<void> deleteFcmToken(String deviceId) async {
+    final uid = auth.currentUser.uid;
+    final ref = store.collection('users').doc(uid).collection('devices').doc(deviceId);
+    if (ref == null) return;
+    await ref.set({
+      'fcmToken': '',
+    });
   }
 
   Future<void> saveFcmToken(String deviceId) async {
