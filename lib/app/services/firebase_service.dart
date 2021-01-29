@@ -34,6 +34,7 @@ class FirebaseService {
         meas.docs.forEach((m) {
           measurements.add(SensorMeasurement.fromJSON(m.data()));
         });
+        //      for (int i = 0; i < 5; i++) print('(TRACE) ${DateTime.fromMillisecondsSinceEpoch(measurements[i].time)}, ${measurements[i].co2}');
         return Sensor.fromFSWithMeasurements(doc.id, doc.data(), measurements);
       });
     }).asStream();

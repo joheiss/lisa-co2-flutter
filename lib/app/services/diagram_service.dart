@@ -1,8 +1,20 @@
+import 'package:jo_tb_fl_chart/chart_controller_rx.dart';
+
 import '../models/sensor_model.dart';
 import '../models/diagram_control_model.dart';
 
 class DiagramService {
   DiagramOptions _options;
+
+  static List<int> sizes = <int>[
+    60 * 60 * 1000,
+    6 * 60 * 60 * 1000,
+    12 * 60 * 60 * 1000,
+    24 * 60 * 60 * 1000,
+    7 * 24 * 60 * 60 * 1000,
+    30 * 24 * 60 * 60 * 1000,
+  ];
+
 
   DiagramService();
 
@@ -15,76 +27,37 @@ class DiagramService {
           type: 'CO2',
           unit: 'ppm',
           isExpanded: true,
-          interval: DiagramTimeInterval(
-            from: DiagramTimeInterval.justifyToMinutes(DateTime.now().millisecondsSinceEpoch, 5) -
-                DiagramTimeInterval.hour +
-                1,
-            to: DiagramTimeInterval.justifyToMinutes(DateTime.now().millisecondsSinceEpoch, 5),
-            size: DiagramTimeInterval.hour,
-          ),
-          datapoints: <DataPoint>[],
-          lowerBound: 0.0,
-          upperBound: 3500.0,
-          offset: 0.0,
         ),
         DiagramControl(
           type: 'Temperatur',
           unit: '°C',
           isExpanded: false,
-          interval: DiagramTimeInterval(
-            from: DiagramTimeInterval.justifyToMinutes(DateTime.now().millisecondsSinceEpoch, 5) -
-                DiagramTimeInterval.hour +
-                1,
-            to: DiagramTimeInterval.justifyToMinutes(DateTime.now().millisecondsSinceEpoch, 5),
-            size: DiagramTimeInterval.hour,
-          ),
-          datapoints: <DataPoint>[],
-          lowerBound: 0.0,
-          upperBound: 35.0,
-          offset: 0.0,
         ),
         DiagramControl(
           type: 'Feuchtigkeit',
           unit: '%',
           isExpanded: false,
-          interval: DiagramTimeInterval(
-            from: DiagramTimeInterval.justifyToMinutes(DateTime.now().millisecondsSinceEpoch, 5) -
-                DiagramTimeInterval.hour +
-                1,
-            to: DiagramTimeInterval.justifyToMinutes(DateTime.now().millisecondsSinceEpoch, 5),
-            size: DiagramTimeInterval.hour,
-          ),
-          datapoints: <DataPoint>[],
-          lowerBound: 0.0,
-          upperBound: 100.0,
-          offset: 0.0,
         ),
       ],
     );
-    if (sensor != null) _options.diagrams.forEach((d) => d.datapoints = sensor.getDataPoints(d.type, d.interval));
-    return _options;
-  }
-
-  List<DataPoint> getDataPoints(Sensor sensor, DiagramControl control) {
-    if (sensor == null) return <DataPoint>[];
-    return sensor.getDataPoints(control.type, control.interval);
-  }
-
-  DiagramOptions resizeInterval(Sensor sensor, DiagramOptions options, int index) {
-    _options = DiagramOptions.resizeInterval(options, index);
-    _options.diagrams.forEach((d) => d.datapoints = getDataPoints(sensor, d));
-    return _options;
-  }
-
-  DiagramOptions scrollDiagram(Sensor sensor, DiagramControl control, String direction) {
-    _options.diagrams.forEach((d) {
-      if (d.type == control.type) {
-        if (direction == 'forward') d.interval = DiagramTimeInterval.next(d.interval);
-        if (direction == 'back') d.interval = DiagramTimeInterval.previous(d.interval);
-        d.datapoints = getDataPoints(sensor, control);
-      }
+    if (sensor != null) _options.diagrams.forEach((d) {
+      List<JODataPoint> datapoints = sensor.measurements.map((m) =>
+          JODataPoint(m.time, d.type == 'CO2' ? m.co2.toDouble() : d.type == 'Temperatur' ? m.temperature.toDouble() : m.humidity.toDouble())).toList();
+      double upperBound = d.type == 'CO2' ? 3500.0 : d.type == 'Temperatur' ? 35.0 : 100.0;
+      JOChartControllerRx controller = JOChartControllerRx(datapoints: datapoints, upperBound: upperBound);
+      d.controller = controller;
     });
     return _options;
+  }
+
+  DiagramOptions resizeInterval(int selectedIndex) {
+    _options.diagrams.forEach((d) => d.controller.size = sizes[selectedIndex]);
+    _options.activeToggle = selectedIndex;
+    return _options;
+  }
+
+  void scrollDiagram(DiagramControl control, direction) {
+    control.controller.scrollDiagram(direction);
   }
 
   DiagramOptions toggleDiagramExpansion(DiagramControl control) {

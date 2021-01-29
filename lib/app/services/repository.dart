@@ -66,12 +66,12 @@ class Repository {
     return _diagramService.getInitialOptions(id, sensor);
   }
 
-  DiagramOptions resizeInterval(Sensor sensor, DiagramOptions options, int index) {
-    return _diagramService.resizeInterval(sensor, options, index);
+  void scrollDiagram(DiagramControl control, String direction) {
+    _diagramService.scrollDiagram(control, direction);
   }
 
-  DiagramOptions scrollDiagram(Sensor sensor, DiagramControl control, String direction) {
-    return _diagramService.scrollDiagram(sensor, control, direction);
+  DiagramOptions resizeInterval(int index) {
+    return _diagramService.resizeInterval(index);
   }
 
   DiagramOptions toggleDiagramExpansion(DiagramControl control) {

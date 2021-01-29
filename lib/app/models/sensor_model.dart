@@ -79,24 +79,6 @@ class Sensor {
     };
   }
 
-  List<DataPoint> getDataPoints(String type, DiagramTimeInterval interval) {
-    List<SensorMeasurement> ms = measurements.where((m) => m.time >= interval.from && m.time <= interval.to).toList();
-    List<DataPoint> datapoints = DataPoint.buildFixedDataPoints(interval);
-    int step = DataPoint.getStepSize(interval.size);
-    datapoints.forEach((d) {
-      List<SensorMeasurement> msInterval = ms.where((m) => d.time <= m.time && m.time <= d.time + step).toList();
-      int value = 0;
-      msInterval.forEach((m) {
-        if (type == 'CO2') value += m.co2;
-        if (type == 'Temperatur') value += m.temperature;
-        if (type == 'Feuchtigkeit') value += m.humidity;
-      });
-      if (value > 0) value = value ~/ msInterval.length;
-      d.value = value;
-    });
-    return datapoints;
-  }
-
   static Icon mapStatusIcon(Sensor sensor, [DiagramControl control]) {
     int value;
     List<int> thresholds;

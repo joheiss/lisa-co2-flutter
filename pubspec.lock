@@ -163,7 +163,7 @@ packages:
     source: hosted
     version: "6.0.16"
   fl_chart:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: fl_chart
       url: "https://pub.dartlang.org"
@@ -219,6 +219,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.16.1"
+  jo_tb_fl_chart:
+    dependency: "direct main"
+    description:
+      name: jo_tb_fl_chart
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.38"
   js:
     dependency: transitive
     description:
@@ -365,7 +372,7 @@ packages:
     source: hosted
     version: "1.1.0-nullsafety.1"
   swipe_gesture_recognizer:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: swipe_gesture_recognizer
       url: "https://pub.dartlang.org"
@@ -415,4 +422,4 @@ packages:
     version: "0.1.2"
 sdks:
   dart: ">=2.10.0-110 <2.11.0"
-  flutter: ">=1.12.13+hotfix.5 <2.0.0"
+  flutter: ">=1.17.0 <2.0.0"

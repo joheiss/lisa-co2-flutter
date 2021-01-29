@@ -9,18 +9,17 @@ class MyForm extends StatefulWidget {
   MyForm({this.id});
 
   @override
-  _MyFormState createState() => _MyFormState(id);
+  _MyFormState createState() => _MyFormState();
 }
 
 class _MyFormState extends State<MyForm> {
-  final String id;
 
   Sensor sensor;
   TextEditingController _nameController;
   TextEditingController _descController;
   TextEditingController _commentController;
 
-  _MyFormState(this.id);
+  _MyFormState();
 
   @override
   void initState() {
@@ -32,14 +31,14 @@ class _MyFormState extends State<MyForm> {
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       appBar: AppBar(
-        title: Text('Informationen zu Sensor $id'),
+        title: Text('Informationen zu Sensor ${widget.id}'),
       ),
       body: StreamBuilder<DocumentSnapshot>(
-        stream: bloc.querySensor(id),
+        stream: bloc.querySensor(widget.id),
         builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
           if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
           if (!snapshot.data.exists) return Center(child: CircularProgressIndicator());
-          sensor = Sensor.fromFS(id, snapshot.data.data());
+          sensor = Sensor.fromFS(widget.id, snapshot.data.data());
           _nameController = TextEditingController(text: sensor.name);
           _descController = TextEditingController(text: sensor.description);
           _commentController = TextEditingController(text: sensor.comment);
@@ -47,7 +46,7 @@ class _MyFormState extends State<MyForm> {
             margin: EdgeInsets.all(20.0),
             child: Column(
               children: [
-                Text('Sensor ID: $id'),
+                Text('Sensor ID: ${widget.id}'),
                 _buildNameInputField(context, _nameController),
                 _buildDescriptionInputField(context, _descController),
                 _buildCommentInputField(context, _commentController),

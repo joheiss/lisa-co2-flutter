@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:swipe_gesture_recognizer/swipe_gesture_recognizer.dart';
 import '../blocs/bloc.dart';
 import '../models/sensor_model.dart';
 import '../models/diagram_control_model.dart';
-import 'my_chart.dart';
+import 'my_packaged_chart.dart';
 import 'my_theme.dart';
 
 class MyDetail extends StatefulWidget {
@@ -12,25 +11,24 @@ class MyDetail extends StatefulWidget {
   MyDetail({this.id});
 
   @override
-  _MyDetailState createState() => _MyDetailState(id);
+  _MyDetailState createState() => _MyDetailState();
 }
 
 class _MyDetailState extends State<MyDetail> {
-  final String id;
 
   Sensor sensor;
   DiagramOptions options;
 
-  _MyDetailState(this.id);
+  _MyDetailState();
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<Sensor>(
-      stream: bloc.querySensorWithAllMeasurements(id),
+      stream: bloc.querySensorWithAllMeasurements(widget.id),
       builder: (BuildContext context, AsyncSnapshot<Sensor> snapshot) {
         if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
         sensor = Sensor(snapshot.data.id, snapshot.data.name, snapshot.data.description, snapshot.data.comment, snapshot.data.measurements);
-        bloc.getInitialOptions(id, sensor);
+        bloc.getInitialOptions(widget.id, sensor);
         return Scaffold(
           appBar: AppBar(
             title: _buildTitle(sensor),
@@ -81,7 +79,9 @@ class _MyDetailState extends State<MyDetail> {
       child: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
           return ToggleButtons(
-            onPressed: (int index) => bloc.resizeDiagram(sensor, options, index),
+            onPressed: (int index) {
+              bloc.resizeDiagram(index);
+            },
             children: [
               _buildSingleToggle(constraints, 6.1, '1 Stunde'),
               _buildSingleToggle(constraints, 6.1, '6 Stunden'),
@@ -134,13 +134,9 @@ class _MyDetailState extends State<MyDetail> {
     final children = <Widget>[
       _buildPanelHeaderLine(control),
     ];
-    if (control.isExpanded) children.add(MyChart(control: control));
-    return SwipeGestureRecognizer(
-      onSwipeLeft: () => bloc.scrollDiagram(sensor, control, 'forward'),
-      onSwipeRight: () => bloc.scrollDiagram(sensor, control, 'back'),
-      child: Column(
+    if (control.isExpanded) children.add(MyPackagedChart(control: control, sensor: sensor));
+    return Column(
         children: children,
-      ),
     );
   }
 
@@ -184,11 +180,11 @@ class _MyDetailState extends State<MyDetail> {
   }
 
   String _mapIntervalSizeToText(int size) {
-    if (size == DiagramTimeInterval.hour) return 'Stunde';
-    if (size == DiagramTimeInterval.six_hours) return '6 Stunden';
-    if (size == DiagramTimeInterval.twelve_hours) return '12 Stunden';
-    if (size == DiagramTimeInterval.day) return 'Tag';
-    if (size == DiagramTimeInterval.week) return 'Woche';
+    if (size == 60 * 60 * 1000) return 'Stunde';
+    if (size == 6 * 60 * 60 * 1000) return '6 Stunden';
+    if (size == 12 * 60 * 60 * 1000) return '12 Stunden';
+    if (size == 24 * 60 * 60 * 1000) return 'Tag';
+    if (size == 7 * 24 * 60 * 60 * 1000) return 'Woche';
     return 'Monat';
   }
 
@@ -197,7 +193,7 @@ class _MyDetailState extends State<MyDetail> {
     if (control.isExpanded) {
       children.add(
         RawMaterialButton(
-          onPressed: () => bloc.scrollDiagram(sensor, control, 'back'),
+          onPressed: () => control.controller.scrollDiagram('back'),
           constraints: BoxConstraints(
             minHeight: 20.0,
             maxHeight: 20.0,
@@ -212,10 +208,10 @@ class _MyDetailState extends State<MyDetail> {
           shape: CircleBorder(),
         ),
       );
-      children.add(Text(_mapIntervalSizeToText(control.interval.size)));
+      children.add(Text(_mapIntervalSizeToText(control.controller.size)));
       children.add(
         RawMaterialButton(
-          onPressed: () => bloc.scrollDiagram(sensor, control, 'forward'),
+          onPressed: () => control.controller.scrollDiagram('forward'),
           constraints: BoxConstraints(
             minHeight: 20.0,
             maxHeight: 20.0,

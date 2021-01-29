@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:try_grid/app/services/firebase_service.dart';
 import '../services/push_notification_service.dart';
 import '../../service_locator.dart';
 import '../services/device_service.dart';
@@ -10,7 +9,7 @@ import '../models/sensor_model.dart';
 import '../models/diagram_control_model.dart';
 
 class Bloc {
-  static final version = '1.0.1';
+  static final version = '1.0.2';
   static String deviceId;
   static Future<void> getDeviceId() async {
     final _deviceService = locator<DeviceService>();
@@ -105,14 +104,13 @@ class Bloc {
     return _repository.updateSensor(sensor);
   }
 
-  void resizeDiagram(Sensor sensor, DiagramOptions diagramOptions, int index) {
-    final options = _repository.resizeInterval(sensor, diagramOptions, index);
+  void resizeDiagram(int index) {
+    final options = _repository.resizeInterval(index);
     _options.add(options);
   }
 
-  void scrollDiagram(Sensor sensor, DiagramControl control, String direction) {
-    DiagramOptions options = _repository.scrollDiagram(sensor, control, direction);
-    _options.add(options);
+  void scrollDiagram(DiagramControl control, String direction) {
+    _repository.scrollDiagram(control, direction);
   }
 
   void toggleDiagramExpansion(DiagramControl control) {
