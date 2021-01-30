@@ -8,7 +8,6 @@ class NotificationHandler extends StatefulWidget {
 }
 
 class _NotificationHandlerState extends State<NotificationHandler> {
-  final _store = FirebaseFirestore.instance;
   final _fcm = FirebaseMessaging();
 
   @override

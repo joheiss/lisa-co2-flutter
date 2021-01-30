@@ -13,8 +13,10 @@ class MyRouter {
 
   Route<Widget> generateRoute(RouteSettings settings) {
     final uid = bloc.getCurrentUserId();
-    print('(TRACE) Logged in user: $uid');
-    print('(TRACE) Navigation target: ${settings.name}');
+
+    // print('(TRACE) Logged in user: $uid');
+    // print('(TRACE) Navigation target: ${settings.name}');
+
     if (uid == null || settings.name == '/signin')
       return MaterialPageRoute(
         builder: (BuildContext context) {

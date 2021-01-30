@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../blocs/bloc.dart';
 import 'my_nodata.dart';
-import 'my_refresher.dart';
 import 'my_drawer.dart';
 import 'my_grid_item.dart';
 
@@ -36,7 +35,7 @@ class MyGrid extends StatelessWidget {
         //   print('(TRACE) list item deviceId: ${d.data()["sensorId"]}');
         // });
         return GridView.builder(
-          padding: EdgeInsets.only(top: 10.0),
+          padding: EdgeInsets.only(top: 10.0, right: 10.0, left: 10.0),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: snapshot.data.size > 1 ? 2 : 1,
             crossAxisSpacing: 10.0,

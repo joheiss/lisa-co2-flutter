@@ -15,7 +15,6 @@ Future<void> main() async {
     await Bloc.getDeviceId();
     runApp(App());
   } catch (err) {
-    print('(ERROR) Locator setup failed!');
-    print(err);
+    print('(ERROR) Locator setup failed: $err');
   }
 }

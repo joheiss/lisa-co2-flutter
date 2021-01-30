@@ -180,12 +180,13 @@ class _MyDetailState extends State<MyDetail> {
   }
 
   String _mapIntervalSizeToText(int size) {
-    if (size == 60 * 60 * 1000) return 'Stunde';
-    if (size == 6 * 60 * 60 * 1000) return '6 Stunden';
-    if (size == 12 * 60 * 60 * 1000) return '12 Stunden';
-    if (size == 24 * 60 * 60 * 1000) return 'Tag';
-    if (size == 7 * 24 * 60 * 60 * 1000) return 'Woche';
-    return 'Monat';
+    if (size == DiagramOptions.hour) return 'Stunde';
+    if (size == DiagramOptions.sixHours) return '6 Stunden';
+    if (size == DiagramOptions.twelveHours) return '12 Stunden';
+    if (size == DiagramOptions.day) return 'Tag';
+    if (size == DiagramOptions.week) return 'Woche';
+    if (size > DiagramOptions.week) return 'Monat';
+    return 'unknown';
   }
 
   Widget _buildScrollAndExpandButtons(DiagramControl control) {

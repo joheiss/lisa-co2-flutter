@@ -27,7 +27,6 @@ class MyDrawer extends StatelessWidget {
           StreamBuilder<bool>(
               stream: bloc.fcmAllowed,
               builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                // if (!snapshot.hasData) return null;
                 return _buildNotificationListTile(context, snapshot.data ?? false);
               },
           ),

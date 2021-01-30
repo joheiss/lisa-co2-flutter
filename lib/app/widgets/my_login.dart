@@ -65,7 +65,7 @@ class _MyLoginState extends State<MyLogin> {
         if (user == null) {
           print('(TRACE) Sign in FAILED');
           setState(() {
-            message = 'Anmeldung ist fehlgeschlagen! Bitte versuche Sie es erneut';
+            message = 'Anmeldung ist fehlgeschlagen! Bitte versuchen Sie es erneut';
           });
         } else {
           print('(TRACE) Sign in OK, go to home');

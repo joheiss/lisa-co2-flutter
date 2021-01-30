@@ -9,15 +9,14 @@ class MyScatterChart extends StatelessWidget {
   final id;
   final value;
 
-  final maxX = 50.0;
-  final maxY = 50.0;
-  final radius = 8.0;
+  static const maxX = 50.0;
+  static const maxY = 50.0;
+  static const radius = 8.0;
+  static final color1 = MyTheme.bubbleColor1;
+  static final color2 = MyTheme.bubbleColor2;
+  static final color3 = MyTheme.bubbleColor2;
 
   MyScatterChart({this.id, this.value});
-
-  final color1 = MyTheme.bubbleColor1;
-  final color2 = MyTheme.bubbleColor2;
-  final color3 = MyTheme.bubbleColor2;
 
   @override
   Widget build(BuildContext context) {
