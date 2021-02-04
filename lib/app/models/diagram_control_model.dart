@@ -1,4 +1,3 @@
-import 'package:intl/intl.dart';
 import 'package:jo_tb_fl_chart/chart_controller_rx.dart';
 
 class DiagramControl {

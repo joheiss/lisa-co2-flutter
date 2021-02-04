@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:try_grid/app/blocs/bloc.dart';
+import '../blocs/bloc.dart';
 
 class MyLogin extends StatefulWidget {
   @override

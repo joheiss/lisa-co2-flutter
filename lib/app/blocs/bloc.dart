@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:rxdart/rxdart.dart' show BehaviorSubject;
 import '../services/push_notification_service.dart';
 import '../../service_locator.dart';
 import '../services/device_service.dart';

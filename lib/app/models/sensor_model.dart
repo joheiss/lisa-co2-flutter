@@ -1,5 +1,5 @@
-import 'dart:convert';
-import 'dart:math';
+import 'dart:convert' show jsonEncode;
+import 'dart:math' show max;
 import 'package:flutter/material.dart';
 import 'diagram_control_model.dart';
 

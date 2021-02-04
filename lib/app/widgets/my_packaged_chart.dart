@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:jo_tb_fl_chart/chart_controller_rx.dart';
 import 'package:jo_tb_fl_chart/jo_tb_fl_chart.dart';
 import '../models/diagram_control_model.dart';
 import '../models/sensor_model.dart';
